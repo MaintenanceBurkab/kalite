@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#1a1a1a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>BURKAB A.Ş. — Kalite Yönetim Modülü v2.5</title>
+  <style>
+    :root{
+      --bg:#111;--panel:#1a1a1a;--panel2:#222;--line:#3a3a3a;
+      --text:#f5f5f5;--muted:#a9a9a9;--yellow:#f5c400;--yellow2:#ffd700;
+      --green:#22c55e;--red:#ef4444;--orange:#f97316;--blue:#3b82f6;
+      --purple:#a855f7;--shadow:0 12px 32px rgba(0,0,0,.28);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,IBM Plex Sans,Arial,sans-serif}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    .app{min-height:100vh}
+    .topbar{height:68px;background:#181818;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 22px;position:sticky;top:0;z-index:20}
+    .brand{display:flex;align-items:center;gap:13px}
+    .logo{width:38px;height:38px;border-radius:10px;background:var(--yellow);color:#111;display:grid;place-items:center;font-weight:900}
+    .brand h1{font-size:17px;margin:0}.brand small{color:var(--muted)}
+    .top-actions{display:flex;align-items:center;gap:9px}
+    .badge{padding:5px 9px;border-radius:999px;background:#292929;border:1px solid var(--line);font-size:12px}
+    .layout{display:grid;grid-template-columns:250px 1fr;min-height:calc(100vh - 68px)}
+    aside{background:#171717;border-right:1px solid var(--line);padding:18px 12px}
+    .nav-title{font-size:11px;color:#777;padding:8px 12px;text-transform:uppercase;letter-spacing:.12em}
+    .nav-btn{width:100%;display:flex;align-items:center;gap:10px;border:0;background:transparent;color:#ddd;padding:11px 12px;border-radius:9px;text-align:left;margin:2px 0}
+    .nav-btn:hover,.nav-btn.active{background:#292929;color:var(--yellow2)}
+    main{padding:22px;overflow:hidden}
+    .page-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px}
+    .page-head h2{margin:0 0 5px;font-size:24px}.page-head p{margin:0;color:var(--muted)}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{border:1px solid var(--line);background:#292929;color:#fff;padding:10px 14px;border-radius:8px;font-weight:700}
+    .btn:hover{filter:brightness(1.12)}
+    .btn-primary{background:var(--yellow);border-color:var(--yellow);color:#111}
+    .btn-danger{background:#7f1d1d;border-color:#991b1b}.btn-success{background:#166534;border-color:#15803d}
+    .cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:18px}
+    .metric{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
+    .metric .label{font-size:12px;color:var(--muted);margin-bottom:10px}.metric .value{font-size:29px;font-weight:900}
+    .metric .sub{font-size:12px;color:#888;margin-top:7px}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px}
+    .panel-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+    .panel-head h3{margin:0;font-size:15px}
+    .filters{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--line);background:#181818}
+    .field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11px;color:var(--muted)}
+    input,select,textarea{background:#111;color:#fff;border:1px solid #414141;border-radius:7px;padding:9px 10px;outline:none}
+    input:focus,select:focus,textarea:focus{border-color:var(--yellow)}
+    textarea{min-height:84px;resize:vertical}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th,td{padding:11px 12px;border-bottom:1px solid #303030;text-align:left;vertical-align:top}
+    th{color:#bbb;background:#202020;position:sticky;top:0}
+    tbody tr:hover{background:#242424}
+    .table-wrap{overflow:auto;max-height:570px}
+    .status{display:inline-flex;padding:4px 8px;border-radius:999px;font-weight:800;font-size:11px;border:1px solid transparent}
+    .s-green{background:#123e24;color:#86efac;border-color:#166534}.s-red{background:#491818;color:#fca5a5;border-color:#7f1d1d}
+    .s-yellow{background:#443809;color:#fde68a;border-color:#665510}.s-blue{background:#102d54;color:#93c5fd;border-color:#1e40af}
+    .s-orange{background:#4c250c;color:#fdba74;border-color:#9a3412}.s-gray{background:#303030;color:#ddd;border-color:#444}
+    .empty{padding:36px;text-align:center;color:#777}
+    .section{display:none}.section.active{display:block}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .span-2{grid-column:span 2}.span-3{grid-column:span 3}
+    .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:50;padding:22px;overflow:auto}
+    .modal-backdrop.show{display:block}
+    .modal{max-width:1100px;margin:25px auto;background:#1b1b1b;border:1px solid #444;border-radius:14px;box-shadow:0 25px 80px #000}
+    .modal-head,.modal-foot{padding:15px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}
+    .modal-foot{border-bottom:0;border-top:1px solid var(--line);justify-content:flex-end}
+    .modal-body{padding:18px}
+    .close{border:0;background:transparent;color:#aaa;font-size:25px}
+    .toast{position:fixed;right:20px;bottom:20px;z-index:99;background:#222;border:1px solid #444;border-left:5px solid var(--yellow);padding:13px 16px;border-radius:9px;box-shadow:var(--shadow);display:none;max-width:420px}
+    .toast.show{display:block}
+    .loading{opacity:.55;pointer-events:none}
+    .tiny{font-size:11px;color:#999}
+    @media(max-width:1050px){.cards{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:78px 1fr}.nav-btn span,.nav-title{display:none}.nav-btn{justify-content:center;font-size:19px}.form-grid{grid-template-columns:1fr 1fr}.span-3{grid-column:span 2}}
+    @media(max-width:700px){main{padding:13px}.cards{grid-template-columns:1fr 1fr}.page-head{flex-direction:column}.grid-2,.form-grid{grid-template-columns:1fr}.span-2,.span-3{grid-column:span 1}.layout{grid-template-columns:1fr}aside{display:none}.topbar{padding:0 12px}.brand small{display:none}}
+
+    .login-screen{position:fixed;inset:0;z-index:9999;background:rgba(8,8,8,.97);display:grid;place-items:center;padding:20px}
+    .login-screen.hidden{display:none}
+    .login-box{width:min(420px,100%);background:#1a1a1a;border:1px solid #3a3a3a;border-radius:16px;padding:26px;box-shadow:0 25px 80px rgba(0,0,0,.65)}
+    .login-box h2{margin:0 0 6px;color:#ffd700}.login-box p{margin:0 0 20px;color:#a9a9a9}
+    .login-box .field{margin-bottom:13px}.login-error{min-height:20px;color:#fca5a5;font-size:13px;margin:8px 0}
+    .login-box .btn{width:100%}.logout-btn{background:#3a1717;border-color:#6b2020}
+  </style>
+</head>
+<body>
+
+<div id="loginScreen" class="login-screen">
+  <form id="loginForm" class="login-box" autocomplete="on">
+    <div class="logo" style="margin-bottom:14px">B</div>
+    <h2>Kalite Modülü Girişi</h2>
+    <p>Yetkili kullanıcı bilgilerinizle giriş yapın.</p>
+    <div class="field"><label>Kullanıcı adı</label><input id="loginUsername" name="username" autocomplete="username" required></div>
+    <div class="field"><label>Şifre</label><input id="loginPassword" name="password" type="password" autocomplete="current-password" required></div>
+    <div id="loginError" class="login-error"></div>
+    <button id="loginButton" class="btn btn-primary" type="submit">Giriş Yap</button>
+  </form>
+</div>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">B</div>
+      <div><h1>BURKAB A.Ş. — KALİTE YÖNETİM MODÜLÜ</h1><small>v2.5 · Tek merkez canlı Sheets bağlantısı</small></div>
+    </div>
+    <div class="top-actions">
+      <span id="connectionBadge" class="badge">● Bağlantı bekleniyor</span>
+      <span id="userBadge" class="badge">Kullanıcı: —</span>
+      <button class="btn" onclick="yenileAktifSayfa()">↻ Yenile</button><button class="btn logout-btn" onclick="cikisYap()">Çıkış</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside>
+      <div class="nav-title">Operasyon</div>
+      <button class="nav-btn active" data-page="dashboard" onclick="sayfaAc('dashboard',this)">▦ <span>Kalite Ana Paneli</span></button>
+      <button class="nav-btn" data-page="bekleyen" onclick="sayfaAc('bekleyen',this)">⏳ <span>Kontrol Bekleyenler</span></button>
+      <button class="nav-btn" data-page="kontroller" onclick="sayfaAc('kontroller',this)">✓ <span>Kalite Kontrolleri</span></button>
+      <button class="nav-btn" data-page="uygunsuzluk" onclick="sayfaAc('uygunsuzluk',this)">⚠ <span>Uygunsuzluklar</span></button>
+      <button class="nav-btn" data-page="karantina" onclick="sayfaAc('karantina',this)">▣ <span>Karantina</span></button>
+      <button class="nav-btn" data-page="aksiyonlar" onclick="sayfaAc('aksiyonlar',this)">↗ <span>Kalite Aksiyonları</span></button>
+      <div class="nav-title">Tanımlar</div>
+      <button class="nav-btn" data-page="planlar" onclick="sayfaAc('planlar',this)">☷ <span>Kontrol Planları</span></button>
+      <button class="nav-btn" data-page="karakteristikler" onclick="sayfaAc('karakteristikler',this)">⌁ <span>Karakteristikler</span></button>
+      <button class="nav-btn" data-page="cihazlar" onclick="sayfaAc('cihazlar',this)">⌖ <span>Ölçüm Cihazları</span></button>
+    </aside>
+
+    <main>
+      <section id="page-dashboard" class="section active">
+        <div class="page-head"><div><h2>Kalite Ana Paneli</h2><p>Kontrol, uygunsuzluk, karantina ve aksiyonların canlı görünümü.</p></div>
+          <div class="actions"><button class="btn btn-primary" onclick="kontrolModalAc()">+ Yeni Kontrol Talebi</button></div>
+        </div>
+        <div class="cards">
+          <div class="metric"><div class="label">Kontrol Bekleyen</div><div class="value" id="mBekleyen">0</div><div class="sub">Kuyruktaki işler</div></div>
+          <div class="metric"><div class="label">Kontrolde</div><div class="value" id="mKontrolde">0</div><div class="sub">İşleme alınan</div></div>
+          <div class="metric"><div class="label">Açık Uygunsuzluk</div><div class="value" id="mUyg">0</div><div class="sub">Kapatılmamış kayıt</div></div>
+          <div class="metric"><div class="label">Karantina</div><div class="value" id="mKar">0</div><div class="sub">Bloke kayıt</div></div>
+          <div class="metric"><div class="label">Kritik Uygunsuzluk</div><div class="value" id="mKritik">0</div><div class="sub">Yüksek ve kritik risk</div></div>
+          <div class="metric"><div class="label">Açık Aksiyon</div><div class="value" id="mAksiyon">0</div><div class="sub">Takip bekleyen</div></div>
+          <div class="metric"><div class="label">Uygun Kontrol</div><div class="value" id="mUygun">0</div><div class="sub">Başarılı kontroller</div></div>
+          <div class="metric"><div class="label">İlk Seferde Uygunluk</div><div class="value"><span id="mFpy">0</span>%</div><div class="sub">Kontrol bazlı oran</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="panel"><div class="panel-head"><h3>Son Bekleyen Kontroller</h3><button class="btn" onclick="sayfaAc('bekleyen')">Tümünü Aç</button></div><div id="dashBekleyen"></div></div>
+          <div class="panel"><div class="panel-head"><h3>Son Açık Uygunsuzluklar</h3><button class="btn" onclick="sayfaAc('uygunsuzluk')">Tümünü Aç</button></div><div id="dashUygunsuzluk"></div></div>
+        </div>
+      </section>
+
+      <section id="page-bekleyen" class="section">
+        <div class="page-head"><div><h2>Kontrol Bekleyen İşler</h2><p>Üretim, depo ve proje akışından gelen kalite talepleri.</p></div><button class="btn btn-primary" onclick="kontrolModalAc()">+ Talep Aç</button></div>
+        <div class="panel"><div class="filters">
+          <div class="field"><label>Arama</label><input id="bekleyenAra" oninput="bekleyenRender()" placeholder="Proje, ürün, takım..."></div>
+          <div class="field"><label>Öncelik</label><select id="bekleyenOncelik" onchange="bekleyenRender()"><option value="">Tümü</option><option>KRİTİK</option><option>YÜKSEK</option><option>NORMAL</option><option>DÜŞÜK</option></select></div>
+        </div><div id="bekleyenTablo"></div></div>
+      </section>
+
+      <section id="page-kontroller" class="section">
+        <div class="page-head"><div><h2>Kalite Kontrolleri</h2><p>Tüm kontrol kayıtları ve sonuçları.</p></div><button class="btn btn-primary" onclick="kontrolModalAc()">+ Yeni Kontrol</button></div>
+        <div class="panel"><div id="kontrollerTablo"></div></div>
+      </section>
+
+      <section id="page-uygunsuzluk" class="section">
+        <div class="page-head"><div><h2>Uygunsuzluk Yönetimi</h2><p>Kanıt, karşılanmayan şart, problem tanımı ve risk takibi.</p></div><button class="btn btn-danger" onclick="uygunsuzlukModalAc()">+ Uygunsuzluk Aç</button></div>
+        <div class="panel"><div id="uygunsuzlukTablo"></div></div>
+      </section>
+
+      <section id="page-karantina" class="section">
+        <div class="page-head"><div><h2>Dijital Karantina Alanı</h2><p>Bloke edilen lot ve miktarların durum takibi.</p></div><button class="btn btn-danger" onclick="karantinaModalAc()">+ Karantinaya Al</button></div>
+        <div class="panel"><div id="karantinaTablo"></div></div>
+      </section>
+
+      <section id="page-aksiyonlar" class="section">
+        <div class="page-head"><div><h2>Kalite Aksiyonları</h2><p>Sorumlu, termin, kanıt ve etkinlik kontrolü.</p></div><button class="btn btn-primary" onclick="aksiyonModalAc()">+ Aksiyon Aç</button></div>
+        <div class="panel"><div id="aksiyonTablo"></div></div>
+      </section>
+
+      <section id="page-planlar" class="section">
+        <div class="page-head"><div><h2>Kontrol Planları</h2><p>Proje, ürün, proses ve revizyona bağlı kontrol planları.</p></div><button class="btn btn-primary" onclick="basitModalAc('plan')">+ Plan Ekle</button></div>
+        <div class="panel"><div id="planlarTablo"></div></div>
+      </section>
+
+      <section id="page-karakteristikler" class="section">
+        <div class="page-head"><div><h2>Kontrol Karakteristikleri</h2><p>Toleranslar, özel karakteristikler, ölçüm yöntemi ve reaksiyon planı.</p></div><button class="btn btn-primary" onclick="basitModalAc('karakteristik')">+ Karakteristik Ekle</button></div>
+        <div class="panel"><div id="karakteristikTablo"></div></div>
+      </section>
+
+      <section id="page-cihazlar" class="section">
+        <div class="page-head"><div><h2>Ölçüm Cihazları</h2><p>Kalibrasyon durumu, aralık, konum ve cihaz uygunluğu.</p></div><button class="btn btn-primary" onclick="basitModalAc('cihaz')">+ Cihaz Ekle</button></div>
+        <div class="panel"><div id="cihazTablo"></div></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div id="modal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-head"><strong id="modalTitle">Kayıt</strong><button class="close" onclick="modalKapat()">×</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot"><button class="btn" onclick="modalKapat()">Vazgeç</button><button id="modalSave" class="btn btn-primary">Kaydet</button></div>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+/* BURKAB KALİTE MODÜLÜ HTML v2.5
+   GS_URL değerini web uygulaması URL'nizle değiştirin.
+*/
+const KALITE_CONFIG = {
+  GS_URL: window.KALITE_GS_URL || 'https://script.google.com/macros/s/AKfycbxMvsbGS0IrqJo4xScv7BoQRIXUt19gXVX-SqAwoczq0FkPc8gt6M-tqHCBn06N9ms/exec',
+  CALLBACK_TIMEOUT: 45000
+};
+
+
+function kaliteEskiVeriTemizle(){
+  const silinecek=[];
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i)||'';
+    if(/^burkab_kalite_(state|cache|data)/i.test(k)) silinecek.push(k);
+  }
+  silinecek.forEach(k=>localStorage.removeItem(k));
+}
+kaliteEskiVeriTemizle();
+
+const STATE = {
+  page:'dashboard', dashboard:{}, kontroller:[], uygunsuzluklar:[],
+  aksiyonlar:[], karantina:[], planlar:[], karakteristikler:[], cihazlar:[]
+};
+
+function kullaniciBilgisi(){
+  const keys=['burkab_user','BURKAB_USER','aktifKullanici','user'];
+  for(const k of keys){
+    try{
+      const v=localStorage.getItem(k); if(!v) continue;
+      const o=JSON.parse(v); if(o && typeof o==='object') return o;
+    }catch(e){}
+  }
+  return {name:localStorage.getItem('kullaniciAdi')||'SISTEM',role:localStorage.getItem('rol')||''};
+}
+function tokenBilgisi(){
+  return localStorage.getItem('burkab_token')||localStorage.getItem('token')||localStorage.getItem('authToken')||'';
+}
+function oturumKaydet(loginResult){
+  localStorage.setItem('burkab_token',loginResult.token||'');
+  localStorage.setItem('burkab_user',JSON.stringify(loginResult.user||{}));
+}
+function oturumTemizle(){
+  ['burkab_token','token','authToken','burkab_user','BURKAB_USER','aktifKullanici','user'].forEach(k=>localStorage.removeItem(k));
+}
+function loginEkraniGoster(mesaj=''){
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('loginError').textContent=mesaj;
+  document.getElementById('loginPassword').value='';
+}
+function loginEkraniKapat(){ document.getElementById('loginScreen').classList.add('hidden'); }
+async function girisYap(username,password){
+  const sonuc=await api('authLogin',{username:String(username||'').trim(),password:String(password||'')});
+  if(!sonuc || !sonuc.token) throw new Error('Sunucu oturum anahtarı döndürmedi.');
+  oturumKaydet(sonuc); loginEkraniKapat();
+  const u=sonuc.user||{};
+  document.getElementById('userBadge').textContent='Kullanıcı: '+(u.name||u.username||'—')+' · '+String(u.role||'').toUpperCase();
+  await yukle();
+}
+function cikisYap(){
+  oturumTemizle();
+  document.getElementById('userBadge').textContent='Kullanıcı: —';
+  document.getElementById('connectionBadge').textContent='● Oturum kapalı';
+  loginEkraniGoster('Oturum kapatıldı.');
+}
+async function oturumKontrolEt(){
+  const token=tokenBilgisi();
+  if(!token){ loginEkraniGoster(); return; }
+  try{
+    const sonuc=await api('authValidate',{authToken:token});
+    if(!sonuc || !sonuc.user) throw new Error('Oturum geçersiz.');
+    localStorage.setItem('burkab_user',JSON.stringify(sonuc.user));
+    loginEkraniKapat();
+    const u=sonuc.user;
+    document.getElementById('userBadge').textContent='Kullanıcı: '+(u.name||u.username||'—')+' · '+String(u.role||'').toUpperCase();
+    await yukle();
+  }catch(e){ oturumTemizle(); loginEkraniGoster('Oturum süresi doldu. Yeniden giriş yapın.'); }
+}
+function api(action,payload={}){
+  return new Promise((resolve,reject)=>{
+    if(!KALITE_CONFIG.GS_URL || KALITE_CONFIG.GS_URL.includes('BURAYA_')){
+      reject(new Error('KALITE_CONFIG.GS_URL henüz tanımlanmadı.')); return;
+    }
+    const cb='kltcb_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+    const timer=setTimeout(()=>cleanup(new Error('Sunucu yanıt zaman aşımı.')),KALITE_CONFIG.CALLBACK_TIMEOUT);
+    const script=document.createElement('script');
+    function cleanup(err,data){
+      clearTimeout(timer);
+      if(err){
+        // Geç gelen JSONP cevabı ReferenceError üretmesin.
+        window[cb]=function(){};
+        setTimeout(()=>{ try{ delete window[cb]; }catch(e){} },120000);
+      }else{
+        delete window[cb];
+      }
+      if(script.parentNode) script.parentNode.removeChild(script);
+      err?reject(err):resolve(data);
+    }
+    window[cb]=data=>{
+      if(data && data.ok===false) cleanup(new Error(data.error||'İşlem başarısız.'));
+      else cleanup(null,data);
+    };
+    const params=new URLSearchParams({
+      action,callback:cb,payload:JSON.stringify(payload||{}),authToken:tokenBilgisi()
+    });
+    script.onerror=()=>cleanup(new Error('Apps Script bağlantısı kurulamadı.'));
+    script.src=KALITE_CONFIG.GS_URL+'?'+params.toString();
+    document.body.appendChild(script);
+  });
+}
+function toast(msg,type='info'){
+  const el=document.getElementById('toast'); el.textContent=msg;
+  el.style.borderLeftColor=type==='error'?'#ef4444':type==='success'?'#22c55e':'#f5c400';
+  el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),3800);
+}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+function norm(v){return String(v??'').trim().toLocaleUpperCase('tr-TR')}
+function badge(v){
+  const n=norm(v); let c='s-gray';
+  if(['UYGUN','TAMAMLANDI','KAPALI','AKTİF','AKTIF'].includes(n)) c='s-green';
+  else if(['RED','KRİTİK','KRITIK','BLOKE'].includes(n)) c='s-red';
+  else if(['BEKLIYOR','ŞARTLI KABUL','SARTLI KABUL'].includes(n)) c='s-yellow';
+  else if(['KONTROLDE','İŞLEMDE','ISLEMDE'].includes(n)) c='s-blue';
+  else if(['YÜKSEK','YUKSEK','GECİKTİ','GECIKTI'].includes(n)) c='s-orange';
+  return `<span class="status ${c}">${esc(v||'—')}</span>`;
+}
+function table(rows,cols,actions){
+  if(!rows.length) return '<div class="empty">Kayıt bulunamadı.</div>';
+  return `<div class="table-wrap"><table><thead><tr>${cols.map(c=>`<th>${esc(c.label)}</th>`).join('')}${actions?'<th>İşlem</th>':''}</tr></thead>
+  <tbody>${rows.map(r=>`<tr>${cols.map(c=>`<td>${c.render?c.render(r[c.key],r):esc(r[c.key]||'—')}</td>`).join('')}${actions?`<td>${actions(r)}</td>`:''}</tr>`).join('')}</tbody></table></div>`;
+}
+async function yukle(){
+  document.body.classList.add('loading');
+  const badge=document.getElementById('connectionBadge');
+  badge.textContent='● Sunucu doğrulanıyor';
+  badge.style.color='#facc15';
+  try{
+    // Önce doğru Apps Script dağıtımına bağlı olduğumuzu kesin doğrula.
+    const health=await api('kaliteHealth',{});
+    if(!health || health.apiVersion!=='5.6.0' || health.deployment!=='TEK_MERKEZ'){
+      throw new Error('Yanlış veya eski Apps Script dağıtımı kullanılıyor. Beklenen API: 5.6.0 TEK_MERKEZ.');
+    }
+
+    // Tüm canlı Sheets verisi tek sunucu çalıştırmasında alınır.
+    const b=await api('kaliteBootstrap',{limit:2000});
+    const data=(b&&b.data&&b.data.data)?b.data.data:((b&&b.data)?b.data:(b||{}));
+
+    STATE.dashboard=data.dashboard||{};
+    STATE.kontroller=Array.isArray(data.kontroller)?data.kontroller:[];
+    STATE.uygunsuzluklar=Array.isArray(data.uygunsuzluklar)?data.uygunsuzluklar:[];
+    STATE.aksiyonlar=Array.isArray(data.aksiyonlar)?data.aksiyonlar:[];
+    STATE.karantina=Array.isArray(data.karantina)?data.karantina:[];
+    STATE.planlar=Array.isArray(data.planlar)?data.planlar:[];
+    STATE.karakteristikler=Array.isArray(data.karakteristikler)?data.karakteristikler:[];
+    STATE.cihazlar=Array.isArray(data.cihazlar)?data.cihazlar:[];
+
+    renderAll();
+    badge.textContent='● Canlı Sheets bağlı · API '+health.apiVersion;
+    badge.style.color='#86efac';
+  }catch(e){
+    // Eski veri/çevrimdışı çalışma yok: bağlantı yoksa ekranda veri gösterilmez.
+    STATE.dashboard={}; STATE.kontroller=[]; STATE.uygunsuzluklar=[];
+    STATE.aksiyonlar=[]; STATE.karantina=[]; STATE.planlar=[];
+    STATE.karakteristikler=[]; STATE.cihazlar=[];
+    renderAll();
+    badge.textContent='● Bağlantı hatası';
+    badge.style.color='#fca5a5';
+    toast(e.message,'error');
+    console.error('KALİTE CANLI BAĞLANTI HATASI:',e);
+  }finally{
+    document.body.classList.remove('loading');
+  }
+}
+
+async function kaliteParcaYenile(parcalar){
+  const istekler=[];
+  const anahtarlar=[];
+  const ekle=(key,action,payload={})=>{anahtarlar.push(key);istekler.push(api(action,payload));};
+
+  (parcalar||[]).forEach(p=>{
+    if(p==='dashboard') ekle('dashboard','kaliteDashboard');
+    if(p==='kontroller') ekle('kontroller','kaliteKontrolListe',{limit:1000});
+    if(p==='uygunsuzluklar') ekle('uygunsuzluklar','kaliteUygunsuzlukListe',{limit:1000});
+    if(p==='aksiyonlar') ekle('aksiyonlar','kaliteAksiyonListe',{limit:1000});
+    if(p==='karantina') ekle('karantina','kaliteKarantinaListe',{limit:1000});
+    if(p==='planlar') ekle('planlar','kaliteKontrolPlaniListe',{limit:1000});
+    if(p==='karakteristikler') ekle('karakteristikler','kaliteKarakteristikListe',{limit:1000});
+    if(p==='cihazlar') ekle('cihazlar','kaliteCihazListe',{limit:1000});
+  });
+
+  if(!istekler.length) return;
+  const sonuclar=await Promise.all(istekler);
+  sonuclar.forEach((r,i)=>{
+    const key=anahtarlar[i];
+    STATE[key]=key==='dashboard'?(r||{}):((r&&r.data)||[]);
+  });
+  renderAll();
+}
+
+
+function kaliteArkaPlandaYenile(parcalar){
+  setTimeout(()=>{
+    kaliteParcaYenile(parcalar).catch(e=>console.warn('Arka plan kalite yenileme:',e.message));
+  },50);
+}
+
+function kaliteDashboardYerelHesapla(){
+  const k=STATE.kontroller||[],u=STATE.uygunsuzluklar||[],a=STATE.aksiyonlar||[],q=STATE.karantina||[];
+  const say=(list,field,vals)=>list.filter(r=>vals.includes(norm(r[field]))).length;
+  const uygun=say(k,'KontrolSonucu',['UYGUN']);
+  STATE.dashboard={
+    ...(STATE.dashboard||{}),
+    bekleyenKontrol:say(k,'Durum',['BEKLIYOR','ATANDI']),
+    kontrolde:say(k,'Durum',['KONTROLDE']),
+    tamamlananKontrol:say(k,'Durum',['TAMAMLANDI']),
+    acikUygunsuzluk:say(u,'Durum',['ACIK','ISLEMDE']),
+    kritikUygunsuzluk:u.filter(r=>['KRİTİK','KRITIK','YÜKSEK','YUKSEK'].includes(norm(r.RiskSeviyesi))&&!['KAPALI','TAMAMLANDI'].includes(norm(r.Durum))).length,
+    acikAksiyon:say(a,'Durum',['ACIK','DEVAM EDİYOR','DEVAM EDIYOR']),
+    karantinaKaydi:say(q,'Durum',['BLOKE','BEKLIYOR']),
+    toplamKontrol:k.length,
+    uygunKontrol:uygun,
+    redKontrol:say(k,'KontrolSonucu',['RED']),
+    ilkSeferdeUygunlukPct:k.length?Math.round(uygun/k.length*1000)/10:0
+  };
+}
+function kayitSonucunuStateEkle(stateKey,sonuc){
+  if(!sonuc || !sonuc.data) return;
+  const liste=STATE[stateKey]||(STATE[stateKey]=[]);
+  const idAlanlari={
+    kontroller:'KontrolId',uygunsuzluklar:'UygunsuzlukId',aksiyonlar:'AksiyonId',
+    karantina:'KarantinaId',planlar:'KontrolPlaniId',
+    karakteristikler:'KarakteristikId',cihazlar:'CihazId'
+  };
+  const idField=idAlanlari[stateKey], id=sonuc.data[idField];
+  const idx=liste.findIndex(x=>String(x[idField]||'')===String(id||''));
+  if(idx>=0) liste[idx]=sonuc.data; else liste.push(sonuc.data);
+}
+
+function renderAll(){
+  const d=STATE.dashboard;
+  mBekleyen.textContent=d.bekleyenKontrol||0;mKontrolde.textContent=d.kontrolde||0;mUyg.textContent=d.acikUygunsuzluk||0;
+  mKar.textContent=d.karantinaKaydi||0;mKritik.textContent=d.kritikUygunsuzluk||0;mAksiyon.textContent=d.acikAksiyon||0;
+  mUygun.textContent=d.uygunKontrol||0;mFpy.textContent=d.ilkSeferdeUygunlukPct||0;
+  bekleyenRender(); kontrollerRender(); uygunsuzlukRender(); karantinaRender(); aksiyonRender(); tanimRender();
+  dashBekleyen.innerHTML=table(STATE.kontroller.filter(x=>['BEKLIYOR','ATANDI'].includes(norm(x.Durum))).slice(-5).reverse(),[
+    {key:'ProjeKodu',label:'Proje'},{key:'UrunKodu',label:'Ürün'},{key:'KontrolTuru',label:'Tür'},
+    {key:'Oncelik',label:'Öncelik',render:badge}],r=>`<button class="btn" onclick="kontrolIslemeAl('${esc(r.KontrolId)}')">İşleme Al</button>`);
+  dashUygunsuzluk.innerHTML=table(STATE.uygunsuzluklar.filter(x=>!['KAPALI','TAMAMLANDI'].includes(norm(x.Durum))).slice(-5).reverse(),[
+    {key:'UygunsuzlukId',label:'No'},{key:'ProjeKodu',label:'Proje'},{key:'HataTanimi',label:'Hata'},
+    {key:'RiskSeviyesi',label:'Risk',render:badge}]);
+}
+function bekleyenRender(){
+  let rows=STATE.kontroller.filter(x=>['BEKLIYOR','ATANDI'].includes(norm(x.Durum)));
+  const q=norm(document.getElementById('bekleyenAra')?.value),o=norm(document.getElementById('bekleyenOncelik')?.value);
+  if(q) rows=rows.filter(r=>norm(Object.values(r).join(' ')).includes(q));
+  if(o) rows=rows.filter(r=>norm(r.Oncelik)===o);
+  bekleyenTablo.innerHTML=table(rows.reverse(),[
+    {key:'KontrolId',label:'Kontrol No'},{key:'ProjeKodu',label:'Proje'},{key:'UrunKodu',label:'Ürün'},
+    {key:'KontrolTuru',label:'Kontrol'},{key:'Takim',label:'Takım'},{key:'Proses',label:'Proses'},
+    {key:'Oncelik',label:'Öncelik',render:badge},{key:'TalepZamani',label:'Talep Zamanı'}
+  ],r=>`<button class="btn btn-primary" onclick="kontrolIslemeAl('${esc(r.KontrolId)}')">Kontrole Başla</button>`);
+}
+function kontrollerRender(){
+  kontrollerTablo.innerHTML=table([...STATE.kontroller].reverse(),[
+    {key:'KontrolId',label:'Kontrol No'},{key:'ProjeKodu',label:'Proje'},{key:'UrunKodu',label:'Ürün'},
+    {key:'KontrolTuru',label:'Tür'},{key:'Durum',label:'Durum',render:badge},
+    {key:'KontrolSonucu',label:'Sonuç',render:badge},{key:'KontroleAlan',label:'Kontrol Eden'},
+    {key:'KontrolBitis',label:'Bitiş'}
+  ],r=>norm(r.Durum)==='KONTROLDE'?`<button class="btn btn-success" onclick="sonucModalAc('${esc(r.KontrolId)}')">Sonuçlandır</button>`:'');
+}
+function uygunsuzlukRender(){
+  uygunsuzlukTablo.innerHTML=table([...STATE.uygunsuzluklar].reverse(),[
+    {key:'UygunsuzlukId',label:'Uygunsuzluk No'},{key:'ProjeKodu',label:'Proje'},{key:'UrunKodu',label:'Ürün'},
+    {key:'HataKodu',label:'Hata Kodu'},{key:'HataTanimi',label:'Tanım'},
+    {key:'RiskSeviyesi',label:'Risk',render:badge},{key:'Durum',label:'Durum',render:badge},
+    {key:'UygunsuzMiktar',label:'Miktar'}
+  ],r=>`<button class="btn" onclick="aksiyonModalAc('${esc(r.UygunsuzlukId)}')">Aksiyon Aç</button>`);
+}
+function karantinaRender(){
+  karantinaTablo.innerHTML=table([...STATE.karantina].reverse(),[
+    {key:'KarantinaId',label:'Karantina No'},{key:'UygunsuzlukId',label:'Uygunsuzluk'},
+    {key:'UrunKodu',label:'Ürün'},{key:'LotNo',label:'Lot'},{key:'Miktar',label:'Miktar'},
+    {key:'DepoKonumu',label:'Konum'},{key:'Durum',label:'Durum',render:badge},{key:'GirisZamani',label:'Giriş'}
+  ]);
+}
+function aksiyonRender(){
+  aksiyonTablo.innerHTML=table([...STATE.aksiyonlar].reverse(),[
+    {key:'AksiyonId',label:'Aksiyon No'},{key:'UygunsuzlukId',label:'Uygunsuzluk'},
+    {key:'AksiyonTuru',label:'Tür'},{key:'Aciklama',label:'Açıklama'},{key:'Sorumlu',label:'Sorumlu'},
+    {key:'PlanlananTarih',label:'Termin'},{key:'Oncelik',label:'Öncelik',render:badge},{key:'Durum',label:'Durum',render:badge}
+  ]);
+}
+function tanimRender(){
+  planlarTablo.innerHTML=table([...STATE.planlar].reverse(),[
+    {key:'KontrolPlaniId',label:'Plan No'},{key:'ProjeKodu',label:'Proje'},{key:'UrunKodu',label:'Ürün'},
+    {key:'Proses',label:'Proses'},{key:'PlanRevizyonu',label:'Rev.'},{key:'Durum',label:'Durum',render:badge}]);
+  karakteristikTablo.innerHTML=table([...STATE.karakteristikler].reverse(),[
+    {key:'KarakteristikId',label:'ID'},{key:'KontrolPlaniId',label:'Plan'},{key:'KarakteristikAdi',label:'Karakteristik'},
+    {key:'NominalDeger',label:'Nominal'},{key:'AltTolerans',label:'Alt'},{key:'UstTolerans',label:'Üst'},
+    {key:'OzelKarakteristikSembolu',label:'Özel'},{key:'Aktif',label:'Aktif',render:badge}]);
+  cihazTablo.innerHTML=table([...STATE.cihazlar].reverse(),[
+    {key:'CihazId',label:'ID'},{key:'CihazNo',label:'Cihaz No'},{key:'CihazAdi',label:'Cihaz'},
+    {key:'OlcumAraligi',label:'Aralık'},{key:'Konum',label:'Konum'},
+    {key:'KalibrasyonDurumu',label:'Kalibrasyon',render:badge},{key:'SonrakiKalibrasyon',label:'Sonraki Tarih'}]);
+}
+function sayfaAc(page,btn){
+  STATE.page=page; document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+page)?.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.toggle('active',x.dataset.page===page));
+}
+function yenileAktifSayfa(){yukle()}
+function modalGoster(title,html,onSave){
+  modalTitle.textContent=title;modalBody.innerHTML=html;modalSave.onclick=onSave;modal.classList.add('show');
+}
+function modalKapat(){modal.classList.remove('show')}
+function formDataObj(id){return Object.fromEntries(new FormData(document.getElementById(id)).entries())}
+
+const KALITE_TANIMLAR = {
+  takimlar:[
+    'TAKIM-1','TAKIM-2','TAKIM-3','TAKIM-4',
+    'TAKIM-6','TAKIM-7','TAKIM-8',
+    'DEPO','KALİTE','PAKETLEME'
+  ],
+  prosesler:{
+    'TAKIM-1':['KABLO HAZIRLAMA','KRİMPLEME','MONTAJ','ALT MONTAJ','ROTA'],
+    'TAKIM-2':['KABLO HAZIRLAMA','KRİMPLEME','MONTAJ','ALT MONTAJ','ROTA'],
+    'TAKIM-3':['ÖN HAZIRLIK','MONTAJ','ALT MONTAJ','ROTA','BANTLAMA','FİNAL MONTAJ'],
+    'TAKIM-4':['KABLO HAZIRLAMA','KRİMPLEME','MONTAJ','ALT MONTAJ','ROTA'],
+    'TAKIM-6':['MONTAJ','FİNAL MONTAJ'],
+    'TAKIM-7':['AKÜ KABLO KESİMİ','KABLO KESİMİ','KORUYUCU KESİM'],
+    'TAKIM-8':['ISITMA','SPLICE','TESİSAT ÖNCESİ KRİMPLEME','TESİSAT SONRASI KRİMPLEME'],
+    'DEPO':['GİRİŞ KONTROL','MALZEME HAZIRLAMA','SEVKİYAT KONTROL'],
+    'KALİTE':['GİRİŞ KALİTE','PROSES KALİTE','FİNAL KALİTE','İLK PARÇA ONAYI'],
+    'PAKETLEME':['PAKETLEME KONTROL','ETİKET KONTROL','SEVK ÖNCESİ KONTROL']
+  },
+  makineler:{
+    'TAKIM-1':['OKM-01','YA-06'],
+    'TAKIM-2':['OKM-02','YA-02'],
+    'TAKIM-3':['OKM-03','YA-03'],
+    'TAKIM-4':['OKM-04','YA-04'],
+    'TAKIM-6':['OKM-05','YA-05'],
+    'TAKIM-7':['PKM-01','MKM-01'],
+    'TAKIM-8':['KM-01','YA-01'],
+    'DEPO':['DEPO-01'],
+    'KALİTE':['KALİTE LAB','KALİTE HAT'],
+    'PAKETLEME':['PAKETLEME-01']
+  }
+};
+
+function benzersizSirali(list){
+  return [...new Set((list||[]).filter(Boolean).map(x=>String(x).trim()).filter(Boolean))]
+    .sort((a,b)=>a.localeCompare(b,'tr'));
+}
+function kaliteKayitDegerleri(alan){
+  const tum=[
+    ...(STATE.kontroller||[]),
+    ...(STATE.uygunsuzluklar||[]),
+    ...(STATE.planlar||[])
+  ];
+  return benzersizSirali(tum.map(x=>x&&x[alan]));
+}
+function optionHtml(list,placeholder='Seçiniz'){
+  return `<option value="">${placeholder}</option>`+
+    benzersizSirali(list).map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
+}
+function takimSecenekleri(){
+  return optionHtml([...KALITE_TANIMLAR.takimlar,...kaliteKayitDegerleri('Takim')],'Takım seçiniz');
+}
+function prosesSecenekleri(takim=''){
+  const sabit=takim ? (KALITE_TANIMLAR.prosesler[takim]||[]) :
+    Object.values(KALITE_TANIMLAR.prosesler).flat();
+  return optionHtml([...sabit,...kaliteKayitDegerleri('Proses')],'Proses seçiniz');
+}
+function makineSecenekleri(takim=''){
+  const sabit=takim ? (KALITE_TANIMLAR.makineler[takim]||[]) :
+    Object.values(KALITE_TANIMLAR.makineler).flat();
+  return optionHtml([...sabit,...kaliteKayitDegerleri('Makine')],'Makine seçiniz');
+}
+function kaliteBagimliDropdownKur(formId){
+  const form=document.getElementById(formId);
+  if(!form) return;
+  const takim=form.querySelector('[name="Takim"]');
+  const proses=form.querySelector('[name="Proses"]');
+  const makine=form.querySelector('[name="Makine"]');
+  if(!takim||!proses||!makine) return;
+
+  const guncelle=()=>{
+    const eskiProses=proses.value, eskiMakine=makine.value, t=takim.value;
+    proses.innerHTML=prosesSecenekleri(t);
+    makine.innerHTML=makineSecenekleri(t);
+    if([...proses.options].some(o=>o.value===eskiProses)) proses.value=eskiProses;
+    if([...makine.options].some(o=>o.value===eskiMakine)) makine.value=eskiMakine;
+  };
+  takim.addEventListener('change',guncelle);
+  guncelle();
+}
+
+function kontrolModalAc(){
+  modalGoster('Yeni Kalite Kontrol Talebi',`<form id="fKontrol" class="form-grid">
+    <div class="field"><label>Kontrol Türü *</label><select name="KontrolTuru" required><option>GİRİŞ KALİTE</option><option>PROSES KALİTE</option><option>FİNAL KALİTE</option><option>İLK PARÇA ONAYI</option></select></div>
+    <div class="field"><label>Öncelik</label><select name="Oncelik"><option>NORMAL</option><option>YÜKSEK</option><option>KRİTİK</option><option>DÜŞÜK</option></select></div>
+    <div class="field"><label>Kaynak</label><select name="Kaynak"><option>ÜRETİM</option><option>DEPO</option><option>PLANLAMA</option><option>KALİTE</option></select></div>
+    <div class="field"><label>Proje Kodu *</label><input name="ProjeKodu" required></div><div class="field"><label>İş Emri No</label><input name="IsEmriNo"></div>
+    <div class="field"><label>Ürün Kodu *</label><input name="UrunKodu" required></div><div class="field"><label>Ürün Revizyonu</label><input name="UrunRevizyonu"></div>
+    <div class="field"><label>Takım</label><select name="Takim">${takimSecenekleri()}</select></div><div class="field"><label>Proses</label><select name="Proses">${prosesSecenekleri()}</select></div>
+    <div class="field"><label>Makine</label><select name="Makine">${makineSecenekleri()}</select></div><div class="field"><label>Operatör</label><input name="Operator"></div>
+    <div class="field"><label>Lot No</label><input name="LotNo"></div><div class="field"><label>Üretilen Miktar</label><input name="UretilenMiktar" type="number" min="0"></div>
+    <div class="field"><label>Numune Miktarı</label><input name="NumuneMiktari" type="number" min="0"></div>
+    <div class="field"><label>Kritik Özellik</label><select name="KritikOzellikVar"><option>HAYIR</option><option>EVET</option></select></div>
+    <div class="field span-3"><label>Açıklama</label><textarea name="Aciklama"></textarea></div></form>`,
+    async()=>{try{await api('kaliteKontrolKaydet',{kontrol:formDataObj('fKontrol'),kullanici:kullaniciBilgisi().name});modalKapat();toast('Kontrol talebi oluşturuldu.','success');kaliteArkaPlandaYenile(['dashboard','kontroller'])}catch(e){toast(e.message,'error')}})
+  kaliteBagimliDropdownKur('fKontrol');
+}
+async function kontrolIslemeAl(id){
+  try{await api('kaliteKontrolIslemeAl',{KontrolId:id,kullanici:kullaniciBilgisi().name});toast('Kontrol işleme alındı.','success');kaliteArkaPlandaYenile(['dashboard','kontroller'])}catch(e){toast(e.message,'error')}
+}
+function sonucModalAc(id){
+  modalGoster('Kalite Kontrolünü Sonuçlandır',`<form id="fSonuc" class="form-grid">
+    <input type="hidden" name="KontrolId" value="${esc(id)}">
+    <div class="field"><label>Sonuç *</label><select name="KontrolSonucu"><option>UYGUN</option><option>RED</option><option>ŞARTLI KABUL</option></select></div>
+    <div class="field"><label>Uygun Miktar</label><input name="UygunMiktar" type="number" min="0"></div>
+    <div class="field"><label>Red Miktar</label><input name="RedMiktar" type="number" min="0"></div>
+    <div class="field"><label>Risk Seviyesi</label><select name="RiskSeviyesi"><option>DÜŞÜK</option><option>ORTA</option><option>YÜKSEK</option><option>KRİTİK</option></select></div>
+    <div class="field"><label>Hata Kodu</label><input name="HataKodu"></div><div class="field"><label>Hata Tanımı</label><input name="HataTanimi"></div>
+    <div class="field span-3"><label>Kanıt / Bulgular</label><textarea name="Kanit"></textarea></div>
+    <div class="field span-3"><label>Karşılanmayan Şart</label><textarea name="KarsilanmayanSart"></textarea></div>
+    <div class="field span-3"><label>Uygunsuzluk İfadesi</label><textarea name="UygunsuzlukIfadesi"></textarea></div>
+    <div class="field span-3"><label>Genel Açıklama</label><textarea name="Aciklama"></textarea></div></form>`,
+    async()=>{try{await api('kaliteKontrolSonuclandir',formDataObj('fSonuc'));modalKapat();toast('Kontrol sonuçlandırıldı.','success');kaliteArkaPlandaYenile(['dashboard','kontroller','uygunsuzluklar','karantina'])}catch(e){toast(e.message,'error')}})
+}
+function uygunsuzlukModalAc(){
+  modalGoster('Yeni Uygunsuzluk',`<form id="fUyg" class="form-grid">
+    <div class="field"><label>Kontrol No</label><input name="KontrolId" placeholder="Varsa bağlı kalite kontrol no"></div>
+    <div class="field"><label>Kaynak *</label><select name="Kaynak" required><option>PROSES</option><option>GİRİŞ</option><option>FİNAL</option><option>MÜŞTERİ</option><option>DENETİM</option><option>TEDARİKÇİ</option></select></div>
+    <div class="field"><label>Risk Seviyesi *</label><select name="RiskSeviyesi" required><option>ORTA</option><option>DÜŞÜK</option><option>YÜKSEK</option><option>KRİTİK</option></select></div>
+
+    <div class="field"><label>Kritik Özellik</label><select name="KritikOzellik"><option>HAYIR</option><option>EVET</option></select></div>
+    <div class="field"><label>Müşteri</label><input name="Musteri"></div>
+    <div class="field"><label>Proje Kodu</label><input name="ProjeKodu"></div>
+
+    <div class="field"><label>İş Emri No</label><input name="IsEmriNo"></div>
+    <div class="field"><label>Ürün Kodu</label><input name="UrunKodu"></div>
+    <div class="field"><label>Ürün Revizyonu</label><input name="UrunRevizyonu"></div>
+
+    <div class="field"><label>Lot No</label><input name="LotNo"></div>
+    <div class="field"><label>Takım</label><select name="Takim">${takimSecenekleri()}</select></div>
+    <div class="field"><label>Proses</label><select name="Proses">${prosesSecenekleri()}</select></div>
+
+    <div class="field"><label>Makine</label><select name="Makine">${makineSecenekleri()}</select></div>
+    <div class="field"><label>Operatör</label><input name="Operator"></div>
+    <div class="field"><label>Hata Kodu</label><input name="HataKodu"></div>
+
+    <div class="field span-2"><label>Hata Tanımı *</label><input name="HataTanimi" required></div>
+    <div class="field"><label>Kontrol Edilen Miktar</label><input name="KontrolEdilenMiktar" type="number" min="0"></div>
+    <div class="field"><label>Uygunsuz Miktar</label><input name="UygunsuzMiktar" type="number" min="0"></div>
+
+    <div class="field"><label>Şüpheli Başlangıç</label><input name="SupheliBaslangic" type="datetime-local"></div>
+    <div class="field"><label>Şüpheli Bitiş</label><input name="SupheliBitis" type="datetime-local"></div>
+    <div class="field"><label>Nihai Karar</label><select name="NihaiKarar"><option value="">Seçiniz</option><option>BEKLEMEDE</option><option>AYIKLAMA</option><option>TAMİR</option><option>HURDA</option><option>ŞARTLI KABUL</option><option>İADE</option></select></div>
+
+    <div class="field span-3"><label>Kanıt / Bulgular</label><textarea name="Kanit"></textarea></div>
+    <div class="field span-3"><label>Karşılanmayan Şart</label><textarea name="KarsilanmayanSart"></textarea></div>
+    <div class="field span-3"><label>Uygunsuzluk İfadesi</label><textarea name="UygunsuzlukIfadesi"></textarea></div>
+    <div class="field span-3"><label>Geçici Aksiyon</label><textarea name="GeciciAksiyon"></textarea></div>
+  </form>`,
+  async()=>{
+    const btn=document.getElementById('modalSave');
+    const eski=btn.textContent; btn.disabled=true; btn.textContent='Kaydediliyor...';
+    try{
+      const sonuc=await api('kaliteUygunsuzlukKaydet',{uygunsuzluk:formDataObj('fUyg')});
+      kayitSonucunuStateEkle('uygunsuzluklar',sonuc);
+      if(sonuc && sonuc.karantina) kayitSonucunuStateEkle('karantina',sonuc.karantina);
+      modalKapat();
+      kaliteDashboardYerelHesapla();
+      renderAll();
+      toast('Uygunsuzluk kaydedildi.','success');
+      // Kullanıcı beklemez; doğrulama arka planda yapılır.
+      kaliteArkaPlandaYenile(['uygunsuzluklar','karantina']);
+    }catch(e){
+      toast(e.message,'error');
+    }finally{
+      btn.disabled=false; btn.textContent=eski;
+    }
+  })
+  kaliteBagimliDropdownKur('fUyg');
+}
+function karantinaModalAc(){
+  modalGoster('Karantinaya Al',`<form id="fKar" class="form-grid">
+    <div class="field"><label>Uygunsuzluk No</label><input name="UygunsuzlukId"></div><div class="field"><label>Ürün Kodu *</label><input name="UrunKodu" required></div>
+    <div class="field"><label>Revizyon</label><input name="UrunRevizyonu"></div><div class="field"><label>Lot No</label><input name="LotNo"></div>
+    <div class="field"><label>Miktar *</label><input name="Miktar" type="number" min="1" required></div><div class="field"><label>Birim</label><input name="Birim" value="ADET"></div>
+    <div class="field"><label>Depo Konumu</label><input name="DepoKonumu"></div><div class="field"><label>Raf Konumu</label><input name="RafKonumu"></div>
+    <div class="field span-3"><label>Blokaj Nedeni</label><textarea name="BlokajNedeni"></textarea></div></form>`,
+    async()=>{try{await api('kaliteKarantinaKaydet',{karantina:formDataObj('fKar')});modalKapat();toast('Karantina kaydı oluşturuldu.','success');kaliteArkaPlandaYenile(['dashboard','karantina'])}catch(e){toast(e.message,'error')}})
+}
+function aksiyonModalAc(uygId=''){
+  modalGoster('Kalite Aksiyonu Aç',`<form id="fAks" class="form-grid">
+    <div class="field"><label>Uygunsuzluk No *</label><input name="UygunsuzlukId" value="${esc(uygId)}" required></div>
+    <div class="field"><label>Aksiyon Türü</label><select name="AksiyonTuru"><option>GEÇİCİ AKSİYON</option><option>KALICI AKSİYON</option><option>ETKİNLİK KONTROLÜ</option></select></div>
+    <div class="field"><label>Öncelik</label><select name="Oncelik"><option>NORMAL</option><option>YÜKSEK</option><option>KRİTİK</option></select></div>
+    <div class="field"><label>Sorumlu *</label><input name="Sorumlu" required></div><div class="field"><label>Planlanan Tarih</label><input name="PlanlananTarih" type="date"></div>
+    <div class="field span-3"><label>Aksiyon Açıklaması *</label><textarea name="Aciklama" required></textarea></div></form>`,
+    async()=>{try{await api('kaliteAksiyonKaydet',{aksiyon:formDataObj('fAks')});modalKapat();toast('Aksiyon oluşturuldu.','success');kaliteArkaPlandaYenile(['dashboard','aksiyonlar'])}catch(e){toast(e.message,'error')}})
+}
+function basitModalAc(tip){
+  const defs={
+    plan:{title:'Kontrol Planı Ekle',action:'kaliteKontrolPlaniKaydet',wrap:'plan',fields:[
+      ['Musteri','Müşteri'],['ProjeKodu','Proje Kodu'],['UrunKodu','Ürün Kodu'],['UrunRevizyonu','Ürün Revizyonu'],
+      ['Proses','Proses'],['PlanRevizyonu','Plan Revizyonu'],['Durum','Durum']]},
+    karakteristik:{title:'Karakteristik Ekle',action:'kaliteKarakteristikKaydet',wrap:'karakteristik',fields:[
+      ['KontrolPlaniId','Kontrol Planı ID'],['KarakteristikKodu','Karakteristik Kodu'],['KarakteristikAdi','Karakteristik Adı'],
+      ['NominalDeger','Nominal Değer'],['AltTolerans','Alt Tolerans'],['UstTolerans','Üst Tolerans'],
+      ['Birim','Birim'],['OlcumYontemi','Ölçüm Yöntemi'],['OzelKarakteristikSembolu','Özel Karakteristik'],['Aktif','Aktif']]},
+    cihaz:{title:'Ölçüm Cihazı Ekle',action:'kaliteCihazKaydet',wrap:'cihaz',fields:[
+      ['CihazNo','Cihaz No'],['CihazAdi','Cihaz Adı'],['CihazTuru','Cihaz Türü'],['Marka','Marka'],['Model','Model'],
+      ['SeriNo','Seri No'],['OlcumAraligi','Ölçüm Aralığı'],['Konum','Konum'],['KalibrasyonDurumu','Kalibrasyon Durumu'],
+      ['SonKalibrasyon','Son Kalibrasyon'],['SonrakiKalibrasyon','Sonraki Kalibrasyon'],['Aktif','Aktif']]}
+  };
+  const d=defs[tip], form='fBasit';
+  modalGoster(d.title,`<form id="${form}" class="form-grid">${d.fields.map(f=>`<div class="field"><label>${f[1]}</label><input name="${f[0]}"></div>`).join('')}</form>`,
+    async()=>{try{const p={};p[d.wrap]=formDataObj(form);await api(d.action,p);modalKapat();toast('Kayıt oluşturuldu.','success');kaliteArkaPlandaYenile([d.wrap==='plan'?'planlar':d.wrap==='karakteristik'?'karakteristikler':'cihazlar'])}catch(e){toast(e.message,'error')}})
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('loginForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    const btn=document.getElementById('loginButton');
+    const err=document.getElementById('loginError');
+    btn.disabled=true; btn.textContent='Giriş yapılıyor...'; err.textContent='';
+    try{ await girisYap(document.getElementById('loginUsername').value,document.getElementById('loginPassword').value); }
+    catch(ex){ err.textContent=ex.message||'Giriş başarısız.'; }
+    finally{ btn.disabled=false; btn.textContent='Giriş Yap'; }
+  });
+  oturumKontrolEt();
+});
+</script>
+</body>
+</html>
