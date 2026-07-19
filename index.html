@@ -300,7 +300,7 @@
 */
 const KALITE_CONFIG = {
   GS_URL: window.KALITE_GS_URL || 'https://script.google.com/macros/s/AKfycbxMvsbGS0IrqJo4xScv7BoQRIXUt19gXVX-SqAwoczq0FkPc8gt6M-tqHCBn06N9ms/exec',
-  CALLBACK_TIMEOUT: 30000
+  CALLBACK_TIMEOUT: 120000
 };
 
 const STATE = {
@@ -369,10 +369,20 @@ function api(action,payload={}){
     const cb='kltcb_'+Date.now()+'_'+Math.random().toString(36).slice(2);
     const timer=setTimeout(()=>cleanup(new Error('Sunucu yanıt zaman aşımı.')),KALITE_CONFIG.CALLBACK_TIMEOUT);
     const script=document.createElement('script');
-    function cleanup(err,data){
-      clearTimeout(timer); delete window[cb]; script.remove();
-      err?reject(err):resolve(data);
-    }
+    function cleanup(err, data) {
+  clearTimeout(timer);
+
+  if (err) {
+    // Geç gelen JSONP cevabı hata üretmesin.
+    window[cb] = function () {};
+    setTimeout(() => delete window[cb], 120000);
+  } else {
+    delete window[cb];
+  }
+
+  if (script.parentNode) script.parentNode.removeChild(script);
+  err ? reject(err) : resolve(data);
+}
     window[cb]=data=>{
       if(data && data.ok===false) cleanup(new Error(data.error||'İşlem başarısız.'));
       else cleanup(null,data);
