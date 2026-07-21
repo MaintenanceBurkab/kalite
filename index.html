@@ -9,7 +9,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>BURKAB A.Ş. — Kalite Yönetim Modülü v2.5</title>
+  <title>BURKAB A.Ş. — Kalite Yönetim Modülü v2.5.1</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
 
@@ -355,7 +355,7 @@
   <header class="topbar">
     <div class="brand">
       <div class="logo">B</div>
-      <div><h1>BURKAB A.Ş. — KALİTE YÖNETİM MODÜLÜ</h1><small>v2.5 · Tek merkez canlı Sheets bağlantısı</small></div>
+      <div><h1>BURKAB A.Ş. — KALİTE YÖNETİM MODÜLÜ</h1><small>v2.5.1 · Tek merkez canlı Sheets bağlantısı</small></div>
     </div>
     <div class="top-actions">
       <span id="connectionBadge" class="badge">● Bağlantı bekleniyor</span>
@@ -592,27 +592,34 @@ async function yukle(){
   badge.textContent='● Sunucu doğrulanıyor';
   badge.style.color='#facc15';
   try{
-    // Önce doğru Apps Script dağıtımına bağlı olduğumuzu kesin doğrula.
+    // Sabit API sürümüne kilitlenme yok. Doğru merkezi dağıtım ve başarılı yanıt yeterlidir.
     const health=await api('kaliteHealth',{});
-    if(!health || health.apiVersion!=='5.6.0' || health.deployment!=='TEK_MERKEZ'){
-      throw new Error('Yanlış veya eski Apps Script dağıtımı kullanılıyor. Beklenen API: 5.6.0 TEK_MERKEZ.');
+    if(!health || health.ok===false){
+      throw new Error((health&&health.error)||'Kalite sunucusu sağlık kontrolüne cevap vermedi.');
+    }
+    if(health.deployment && health.deployment!=='TEK_MERKEZ'){
+      throw new Error('Yanlış Apps Script dağıtımı kullanılıyor: '+health.deployment);
     }
 
-    // Tüm canlı Sheets verisi tek sunucu çalıştırmasında alınır.
+    // Tüm geçmiş kalite verisini tek sunucu çağrısıyla al.
     const b=await api('kaliteBootstrap',{limit:2000});
-    const data=(b&&b.data&&b.data.data)?b.data.data:((b&&b.data)?b.data:(b||{}));
+    if(!b || b.ok===false){
+      throw new Error((b&&b.error)||'Kalite geçmiş kayıtları yüklenemedi.');
+    }
+    const data=(b.data&&typeof b.data==='object')?b.data:b;
 
-    STATE.dashboard=data.dashboard||{};
-    STATE.kontroller=Array.isArray(data.kontroller)?data.kontroller:[];
-    STATE.uygunsuzluklar=Array.isArray(data.uygunsuzluklar)?data.uygunsuzluklar:[];
-    STATE.aksiyonlar=Array.isArray(data.aksiyonlar)?data.aksiyonlar:[];
-    STATE.karantina=Array.isArray(data.karantina)?data.karantina:[];
-    STATE.planlar=Array.isArray(data.planlar)?data.planlar:[];
-    STATE.karakteristikler=Array.isArray(data.karakteristikler)?data.karakteristikler:[];
-    STATE.cihazlar=Array.isArray(data.cihazlar)?data.cihazlar:[];
+    STATE.dashboard=data.dashboard||b.dashboard||{};
+    STATE.kontroller=Array.isArray(data.kontroller)?data.kontroller:(Array.isArray(b.kontroller)?b.kontroller:[]);
+    STATE.uygunsuzluklar=Array.isArray(data.uygunsuzluklar)?data.uygunsuzluklar:(Array.isArray(b.uygunsuzluklar)?b.uygunsuzluklar:[]);
+    STATE.aksiyonlar=Array.isArray(data.aksiyonlar)?data.aksiyonlar:(Array.isArray(b.aksiyonlar)?b.aksiyonlar:[]);
+    STATE.karantina=Array.isArray(data.karantina)?data.karantina:(Array.isArray(b.karantina)?b.karantina:[]);
+    STATE.planlar=Array.isArray(data.planlar)?data.planlar:(Array.isArray(b.planlar)?b.planlar:[]);
+    STATE.karakteristikler=Array.isArray(data.karakteristikler)?data.karakteristikler:(Array.isArray(b.karakteristikler)?b.karakteristikler:[]);
+    STATE.cihazlar=Array.isArray(data.cihazlar)?data.cihazlar:(Array.isArray(b.cihazlar)?b.cihazlar:[]);
 
     renderAll();
-    badge.textContent='● Canlı Sheets bağlı · API '+health.apiVersion;
+    const toplam=STATE.kontroller.length+STATE.uygunsuzluklar.length+STATE.aksiyonlar.length+STATE.karantina.length;
+    badge.textContent='● Canlı Sheets bağlı · API '+(health.apiVersion||'—')+' · Kalite '+(health.qualityVersion||'—')+' · '+toplam+' kayıt';
     badge.style.color='#86efac';
   }catch(e){
     // Eski veri/çevrimdışı çalışma yok: bağlantı yoksa ekranda veri gösterilmez.
